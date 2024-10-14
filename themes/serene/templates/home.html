@@ -1,0 +1,147 @@
+{% import 'macros/math.html' as macro_math -%}
+{% extends "_base.html" %}
+
+{% block page %}homepage{% endblock page%}
+{% block lang %}{% if section.extra.lang %}{{ section.extra.lang }}{% else %}{{ section.lang }}{% endif %}{% endblock lang %}
+{% block title %}{{ config.title }}{% endblock title %}
+{% block desc %}
+  <meta name="description" content="{{ config.description }}">
+{% endblock desc %}
+
+{% block head %}
+{% if config.extra.homepage_layout == "about" and config.markdown.highlight_theme == "css" %}
+<link id="hl" rel="stylesheet" type="text/css" href="/hl-{% if config.extra.force_theme == "dark" %}dark{% else %}light{% endif %}.css" />
+{% endif %}
+{% if section.extra.math %}
+  {{ macro_math::math_render(style = section.extra.math) }}
+{% endif %}
+{% endblock head %}
+
+{% block content %}
+<div id="wrapper">
+  <main>
+    <section id="info">
+      <img src="{{ config.extra.avatar }}" alt="avatar">
+      <div id="text">
+        <div>
+          <span id="name">{{ config.extra.name }}</span>
+          {% if config.extra.display_id -%}
+          <span id="id">@{{ config.extra.id }}</span>
+          {% endif -%}
+        </div>
+        <div id="bio"> {{ config.extra.bio }} </div>
+      </div>
+    </section>
+    <section id="links">
+      <div id="left">
+        {% for section in config.extra.sections %}
+        <a href="{{ section.path }}" {% if section.is_external %}target="_blank" rel='noreferrer noopener'{% else %}class="instant"{% endif %}>{{ section.name }}</a>
+        {% endfor %}
+      </div>
+      <div id="right">
+        {% for link in config.extra.links %}
+        <a href="{{ link.url }}" aria-label="{{ link.name }}" target="_blank" rel='noreferrer noopener'>
+          {% set icon_path = "static/icon/" ~ link.icon ~ ".svg" %}
+          {% set icon = load_data(path=icon_path) %}
+          {{ icon | safe }}
+        </a>
+        {% endfor %}
+		    {% if not config.extra.force_theme %}
+        {% set moon_icon = load_data(path="static/icon/moon.svg") %}
+        {% set sun_icon = load_data(path="static/icon/sun.svg") %}
+        <button id="theme-toggle" aria-label="theme switch" data-moon-icon="{{ moon_icon }}" data-sun-icon="{{ sun_icon }}">
+          {{ moon_icon | safe }}
+        </button>
+		    {% endif %}
+      </div>
+    </section>
+    {% if config.extra.homepage_layout == 'about' %}
+      <section id="brief" class="prose">
+        {{ section.content | trim | safe }}
+        {% set blog_section_path = config.extra.blog_section_path | trim_start_matches(pat="/") %}
+      {% set section_md_path = blog_section_path ~ "/_index.md" %}
+      {% set blog_section = get_section(path=section_md_path) %}
+      <section class="layout-list">
+        <div class="post-list">
+          {% for post in blog_section.pages | slice(end=config.extra.recent_max) %}
+          <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
+            <span>{{ post.title }}</span>
+            <span class="line"></span>
+            <span class="date">{{ post.date | date}}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% if config.extra.recent_more %}
+        <div class="read-more">
+          <a class="instant" href="{{ config.extra.blog_section_path }}">{{ config.extra.recent_more_text }}</a>
+        </div>
+        {% endif %}
+      </section>
+      </section>
+    {% elif config.extra.homepage_layout == 'list' %}
+      {% set blog_section_path = config.extra.blog_section_path | trim_start_matches(pat="/") %}
+      {% set section_md_path = blog_section_path ~ "/_index.md" %}
+      {% set blog_section = get_section(path=section_md_path) %}
+      <section class="layout-list">
+        {% if config.extra.blog_categorized %}
+        {% for category,posts in blog_section.pages | sort(attribute="taxonomies.categories.0") | group_by(attribute="taxonomies.categories.0") %}
+        {% set category_name = category %}
+        {% if category is matching("^__[0-9]{2}__") %}
+          {% set category_name = category | split(pat="") | slice(start=7) | join(sep="") %}
+        {% endif %}
+        <div class="category">{{ category_name }}</div>
+        <div class="post-list categorized">
+          {% for post in posts %}
+          <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
+            <span>{{ post.title }}</span>
+            <span class="date">{{ post.date | date}}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="post-list">
+          {% for post in blog_section.pages %}
+          <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
+            <span>{{ post.title }}</span>
+            <span class="line"></span>
+            <span class="date">{{ post.date | date}}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </section>
+    {% elif config.extra.homepage_layout == 'recent' %}
+      {% set blog_section_path = config.extra.blog_section_path | trim_start_matches(pat="/") %}
+      {% set section_md_path = blog_section_path ~ "/_index.md" %}
+      {% set blog_section = get_section(path=section_md_path) %}
+      <section class="layout-list">
+        <div class="post-list">
+          {% for post in blog_section.pages | slice(end=config.extra.recent_max) %}
+          <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
+            <span>{{ post.title }}</span>
+            <span class="line"></span>
+            <span class="date">{{ post.date | date}}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% if config.extra.recent_more %}
+        <div class="read-more">
+          <a class="instant" href="{{ config.extra.blog_section_path }}">{{ config.extra.recent_more_text }}</a>
+        </div>
+        {% endif %}
+      </section>
+    {% endif %}
+  </main>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script src="/js/lightense.min.js"></script>
+{% if section.extra.mermaid %}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true });
+</script>
+{% endif %}
+{% endblock script %}

@@ -1,0 +1,43 @@
+{% extends "_base.html" %}
+
+{% block page %}projects{% endblock page%}
+{% block lang %}{% if section.extra.lang %}{{ section.extra.lang }}{% else %}{{ section.lang }}{% endif %}{% endblock lang %}
+{% block title %}{{ section.title }}{% endblock title %}
+{% block desc %}
+  <meta name="description" content="{{ section.description }}">
+{% endblock desc %}
+
+{% block content %}
+{% include "_header.html" %}
+<div id="wrapper">
+  <main>
+    {% set data = load_data(path="content" ~ section.path ~ "data.toml", format="toml") %}
+    {% for proj in data.project %}
+    <div class="proj">
+      <div class="content">
+        <div>
+          <p class="name">{{ proj.name }}</p>
+          <div class="desc">{{ proj.desc | trim | markdown | safe }}</div>
+        </div>
+        {% if proj.img %}
+        <img src="{{ proj.img }}" alt="{{ proj.name }}" />
+        {% endif %}
+      </div>
+      <div class="more">
+        <div class="tags">
+          {% for tag in proj.tags %}
+          <div><span>#</span>{{ tag }}</div>
+          {% endfor %}
+        </div>
+        <div class="links">
+          {% for link in proj.links -%}
+          <a href="{{ link.url }}" target="_blank" rel='noreferrer noopener'>{{ link.name }}</a>
+          {% endfor %}
+        </div>
+      </div>  
+    </div>
+    {% endfor %}
+  </main>
+  {% include "_footer.html" -%}
+</div>
+{% endblock content %}

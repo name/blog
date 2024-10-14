@@ -1,0 +1,43 @@
+{% extends "_base.html" %}
+
+{% block page %}blog{% endblock page%}
+{% block lang %}{% if section.extra.lang %}{{ section.extra.lang }}{% else %}{{ section.lang }}{% endif %}{% endblock lang %}
+{% block title %}{{ section.title }}{% endblock title %}
+{% block desc %}
+  <meta name="description" content="{{ section.description }}">
+{% endblock desc %}
+
+{% block content %}
+{% include "_header.html" %}
+<div id="wrapper">
+  <main class="layout-list">
+    {% if config.extra.blog_categorized %}
+    {% for category,posts in section.pages | sort(attribute="taxonomies.categories.0") | group_by(attribute="taxonomies.categories.0") %}
+    {% set category_name = category %}
+    {% if category is matching("^__[0-9]{2}__") %}
+      {% set category_name = category | split(pat="") | slice(start=7) | join(sep="") %}
+    {% endif %}
+    <div class="category">{{ category_name }}</div>
+    <div class="post-list categorized">
+      {% for post in posts %}
+      <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
+        <span>{{ post.title }}</span>
+        <span class="date">{{ post.date | date}}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="post-list">
+      {% for post in section.pages %}
+      <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
+        <span>{{ post.title }}</span>
+        <span class="date">{{ post.date | date}}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </main>
+  {% include "_footer.html" %}
+</div>
+{% endblock content %}
