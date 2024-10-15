@@ -1,0 +1,13 @@
+services:
+    blog:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: char-blog
+        restart: unless-stopped
+        networks:
+            - alya-prod-public
+
+networks:
+    alya-prod-public:
+        external: true

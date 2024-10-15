@@ -32,7 +32,7 @@ render_emoji = false
 external_links_target_blank = false
 external_links_no_follow = true
 external_links_no_referrer = true
-smart_punctuation = false
+smart_punctuation = true
 
 [slugify]
 paths = "on"
@@ -54,7 +54,7 @@ links = [ # Your links
 ]
 
 homepage_layout = "about" # "about" | "list" | "recent"
-force_theme = false       # false | "light" | "dark"
+force_theme = "light"     # false | "light" | "dark"
 
 recent_max = 5
 recent_more = true
