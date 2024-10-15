@@ -1,16 +1,16 @@
 +++
 title = "Accidental GitHub Invite"
-date = 2024-10-15
+date = 2024-10-14
 draft = false
 
 [taxonomies]
 categories = ["uncategorized"]
-tags = ["untagged"]
+tags = ["github"]
 
 [extra]
 lang = "en"
-toc = true
-comment = true
+toc = false
+comment = false
 copy = true
 math = false
 mermaid = false
