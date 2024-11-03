@@ -3,11 +3,11 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: char-blog
+        container_name: blog
         restart: unless-stopped
         networks:
-            - alya-prod-public
+            - neurythm-prod
 
 networks:
-    alya-prod-public:
+    neurythm-prod:
         external: true
